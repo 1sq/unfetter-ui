@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit, ViewChild, ElementRef, Renderer2, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, ViewChild, Renderer2, Output, EventEmitter, ChangeDetectionStrategy, ElementRef } from '@angular/core';
 import { trigger, state, transition, style, animate, query } from '@angular/animations';
 import { Observable } from 'rxjs/Observable';
 
@@ -25,7 +25,7 @@ export class IndicatorCardComponent implements OnInit, AfterViewInit {
 
     @Output() public stateChange: EventEmitter<any> = new EventEmitter();
     @Output() public indicatorDeleted: EventEmitter<any> = new EventEmitter();
-
+    
     public user;
     public showCommentTextArea: boolean = false;
     public commentText: string = '';
@@ -34,10 +34,14 @@ export class IndicatorCardComponent implements OnInit, AfterViewInit {
     public alreadyLiked: boolean = false;
     public alreadyInteracted: boolean = false;
     public alreadyCommented: boolean = false;
+    public displayShowMoreBtn: boolean = false;
+    public showMore: boolean = false;
     public readonly runMode = environment.runMode;
-
+    
     private readonly FLASH_MSG_TIMER: number = 1500;
-
+    private readonly SHOW_MORE_BUTTON_THRESHOLD: number = 270;
+    
+    @ViewChild('mainContent') private mainContentEl: ElementRef;
     @ViewChild('card') private card: ElementRef;
 
     constructor(
@@ -46,7 +50,7 @@ export class IndicatorCardComponent implements OnInit, AfterViewInit {
         private renderer: Renderer2
     ) { }
 
-    public ngOnInit() {
+    public ngOnInit() {        
         this.user = this.authService.getUser();
         if (this.indicator.metaProperties !== undefined && this.indicator.metaProperties.likes !== undefined && this.indicator.metaProperties.likes.length > 0) {
             const alreadyLiked = this.indicator.metaProperties.likes.find((like) => like.user.id === this.user._id);
@@ -79,7 +83,15 @@ export class IndicatorCardComponent implements OnInit, AfterViewInit {
                 // NOTE renderer.listen returns a method to remove the listener, slightly counterintuitive
                 removeListener();
             });  
-        }           
+        }
+
+        requestAnimationFrame(() => {
+            const height = this.mainContentEl.nativeElement.offsetHeight;
+            console.log('~~~~', height);
+            if (height >= this.SHOW_MORE_BUTTON_THRESHOLD) {
+                this.displayShowMoreBtn = true;
+            }
+        });
     }
 
     public highlightPhase(phase) {

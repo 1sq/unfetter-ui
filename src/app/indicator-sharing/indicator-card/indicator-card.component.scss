@@ -50,3 +50,12 @@
         }
     }
 }
+
+#mainContent {
+    max-height: 270px;
+    overflow: hidden;
+    position: relative;
+    &.fullHeight {
+        max-height: 100%;
+    }
+}

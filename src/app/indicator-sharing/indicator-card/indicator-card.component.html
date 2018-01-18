@@ -27,81 +27,52 @@
     </mat-card-header>
 
     <mat-card-content #card>
-        <label>Pattern</label>
-        <p>
-            <code [innerHtml]="whitespaceToBreak(indicator.pattern)" class="inlineBlock"></code>
-        </p>
+        <div #mainContent id="mainContent" [ngClass]="{'fullHeight': showMore, 'fadeBottom': displayShowMoreBtn && !showMore}">
+            <label>Pattern</label>
+            <p>
+                <code [innerHtml]="whitespaceToBreak(indicator.pattern)" class="inlineBlock"></code>
+            </p>
 
-        <label>Labels</label>
-        <div class="flex flexItemsCenter">
-            <mat-chip-list>
-                <mat-chip *ngFor="let label of indicator.labels" [selected]="labelSelected(label)" class="cursor-pointer chipListChip">{{label | capitalize}}</mat-chip>
-            </mat-chip-list>
-            <add-label-reactive [stixType]="'indicator'" (labelAdded)="addLabel($event)" [currentLabels]="indicator.labels"></add-label-reactive>
-        </div>
+            <label>Labels</label>
+            <div class="flex flexItemsCenter">
+                <mat-chip-list>
+                    <mat-chip *ngFor="let label of indicator.labels" [selected]="labelSelected(label)" class="cursor-pointer chipListChip">{{label | capitalize}}</mat-chip>
+                </mat-chip-list>
+                <add-label-reactive [stixType]="'indicator'" (labelAdded)="addLabel($event)" [currentLabels]="indicator.labels"></add-label-reactive>
+            </div>
 
-        <mat-tab-group>
-            <!-- <mat-tab label="Labels">
-                <div class="flex flexItemsCenter">
-                    <mat-chip-list>
-                        <mat-chip *ngFor="let label of indicator.labels" [selected]="labelSelected(label)" class="cursor-pointer chipListChip">{{label | capitalize}}</mat-chip>
-                    </mat-chip-list>
-                    <add-label-reactive [stixType]="'indicator'" (labelAdded)="addLabel($event)" [currentLabels]="indicator.labels"></add-label-reactive>
-                </div>
-            </mat-tab> -->
+            <div *ngIf="indicator.kill_chain_phases">
+                <label>Kill Chain Phases</label>
+                <p>
+                    <span *ngFor="let phase of indicator.kill_chain_phases; let i = index" class="text-muted">
+                        <span 
+                            [ngClass]="{'uf-highlight': highlightPhase(phase.phase_name)}"
+                            matTooltip="{{ phase.kill_chain_name | capitalize }}" 
+                            matTooltipPosition="after">{{ phase.phase_name | capitalize }}</span>
+                        <span *ngIf="i < (indicator.kill_chain_phases.length - 1)">&nbsp;&bull;&nbsp;</span>
+                    </span>
+                </p>
+            </div>
+            <div *ngIf="indicator.description">
+                <label>Description</label>
+                <p>{{ indicator.description }}</p>
+            </div>
+            <div *ngIf="indicator.external_references">
+                <label>External References</label><br>
+                <chip-links [data]="indicator.external_references" nameField="source_name" urlField="url"></chip-links>
+            </div>
+            <div *ngIf="indicator.metaProperties && indicator.metaProperties.observedData && indicator.metaProperties.observedData.length">
+                <label>Observed Data</label>
+                <observable-data-summary [observedData]="indicator.metaProperties.observedData"></observable-data-summary>
+            </div>
+            <div class="mt-3">
+                <label>Unfetter User Interactions: </label>
+                <span *ngIf="indicator.metaProperties && indicator.metaProperties.interactions">{{ indicator.metaProperties.interactions.length }}</span>
+                <span *ngIf="!indicator.metaProperties || !indicator.metaProperties.interactions">{{ 0 }}</span>
+            </div>    
 
-            <mat-tab label="Details">
-                <div *ngIf="indicator.kill_chain_phases">
-                    <label>Kill Chain Phases</label>
-                    <p>
-                        <span *ngFor="let phase of indicator.kill_chain_phases; let i = index" class="text-muted">
-                            <span 
-                                [ngClass]="{'uf-highlight': highlightPhase(phase.phase_name)}"
-                                matTooltip="{{ phase.kill_chain_name | capitalize }}" 
-                                matTooltipPosition="after">{{ phase.phase_name | capitalize }}</span>
-                            <span *ngIf="i < (indicator.kill_chain_phases.length - 1)">&nbsp;&bull;&nbsp;</span>
-                        </span>
-                    </p>
-                </div>
-                <div *ngIf="indicator.description">
-                    <label>Description</label>
-                    <p>{{ indicator.description }}</p>
-                </div>
-                <div *ngIf="indicator.external_references">
-                    <label>External References</label><br>
-                    <chip-links [data]="indicator.external_references" nameField="source_name" urlField="url"></chip-links>
-                </div>
-                <div *ngIf="indicator.metaProperties && indicator.metaProperties.observedData && indicator.metaProperties.observedData.length">
-                    <label>Observed Data</label>
-                    <observable-data-summary [observedData]="indicator.metaProperties.observedData"></observable-data-summary>
-                </div>
-                <div class="mt-3">
-                    <label>Unfetter User Interactions: </label>
-                    <span *ngIf="indicator.metaProperties && indicator.metaProperties.interactions">{{ indicator.metaProperties.interactions.length }}</span>
-                    <span *ngIf="!indicator.metaProperties || !indicator.metaProperties.interactions">{{ 0 }}</span>
-                </div>                
-                <!-- <p>
-                    <a routerLink="/indicator-sharing/single/{{indicator.id}}">View Alone</a>
-                </p> -->
-            </mat-tab>
-
-            <!-- <mat-tab label="Comments" *ngIf="indicator.metaProperties && indicator.metaProperties.comments && indicator.metaProperties.comments.length > 0">
-                <div *ngFor="let comment of indicator.metaProperties.comments | sortByField: 'submitted'; let i = index">
-                    <div class="flex flexItemsCenter mb-5">
-                        <span *ngIf="comment.user.avatar_url">
-                            <img src="{{ comment.user.avatar_url }}" alt="{{ comment.user.userName }} avatar" class="smallAvatar">&nbsp;
-                        </span>
-                        <span>
-                            <a routerLink="/users/profile/{{comment.user.id}}">{{ comment.user.userName }}</a>
-                            <small class="text-muted"> &bull; {{ comment.submitted | timeAgo }}</small>
-                        </span>
-                    </div>
-                    <p [innerHtml]="whitespaceToBreak(comment.comment)"></p>
-                    <hr *ngIf="i < (indicator.metaProperties.comments.length - 1)">
-                </div>
-            </mat-tab> -->
-
-            <mat-tab label="Attack Patterns" *ngIf="attackPatterns && attackPatterns.length > 0">
+            <div *ngIf="attackPatterns && attackPatterns.length > 0">
+                <h3 class="lightH3">Attack Patterns</h3>       
                 <div *ngFor="let ap of attackPatterns">
                     <h4 class="fw400">
                         <a routerLink="/stix/attack-patterns/{{ap.id}}">{{ap.name}}</a>
@@ -110,9 +81,9 @@
                         <label>Kill Chain Phases</label>
                         <p>
                             <span *ngFor="let phase of ap.kill_chain_phases; let i = index" class="text-muted">
-                            <span [ngClass]="{'uf-highlight': highlightPhase(phase.phase_name)}" matTooltip="{{ phase.kill_chain_name | capitalize }}"
+                                <span [ngClass]="{'uf-highlight': highlightPhase(phase.phase_name)}" matTooltip="{{ phase.kill_chain_name | capitalize }}"
                                 matTooltipPosition="after">{{ phase.phase_name | capitalize }}</span>
-                            <span *ngIf="i < (ap.kill_chain_phases.length - 1)">&nbsp;&bull;&nbsp;</span>
+                                <span *ngIf="i < (ap.kill_chain_phases.length - 1)">&nbsp;&bull;&nbsp;</span>
                             </span>
                         </p>
                     </div>
@@ -120,8 +91,8 @@
                         <label>Platforms Effected:&nbsp;</label>
                         <p class="whiteSpaceNormal">
                             <span *ngFor="let platform of ap.x_mitre_platforms; let i = index" class="text-muted">
-                            <span>{{ platform }}</span>
-                            <span *ngIf="i < (ap.x_mitre_platforms.length - 1)">&nbsp;&bull;&nbsp;</span>
+                                <span>{{ platform }}</span>
+                                <span *ngIf="i < (ap.x_mitre_platforms.length - 1)">&nbsp;&bull;&nbsp;</span>
                             </span>
                         </p>
                     </div>
@@ -129,10 +100,11 @@
                         <label>Sophistication Level:&nbsp;</label>
                         <span>{{ ap.x_unfetter_sophistication_level }}</span>
                     </div>
-                </div>
-            </mat-tab>
+                </div>            =
+            </div>
 
-            <mat-tab label="Sensors" *ngIf="sensors && sensors.length > 0">     
+            <div *ngIf="sensors && sensors.length > 0">
+                <h3 class="lightH3">Sensors</h3>     
                 <div *ngFor="let sensor of sensors">
                     <h4 class="fw400">
                         <a routerLink="/stix/x-unfetter-sensors/{{sensor.id}}">{{sensor.name}}</a>
@@ -142,9 +114,11 @@
                         <observable-data-summary [observedData]="sensor.metaProperties.observedData"></observable-data-summary>
                     </p>        
                 </div>         
-            </mat-tab>
+            </div>
+        </div>
 
-        </mat-tab-group>
+        <button mat-button color="primary" class="mt-6" (click)="showMore = !showMore" *ngIf="displayShowMoreBtn">SHOW MORE</button>
+
 
         <div class="mt-20 overFlowHidden" @heightCollapse *ngIf="showCommentTextArea">
             <mat-form-field class="full-width">
