@@ -27,7 +27,7 @@
     </mat-card-header>
 
     <mat-card-content #card>
-        <div #mainContent id="mainContent" [ngClass]="{'fullHeight': showMore, 'fadeBottom': displayShowMoreBtn && !showMore}">
+        <div #mainContent id="mainContent" [ngClass]="{'fullHeight': showMore, 'fadeBottom': displayShowMoreBtn && !showMore}" [@heightTransition]="!displayShowMoreBtn ? 'ignore': showMore ? 'opened' : 'collapsed'">
             <label>Pattern</label>
             <p>
                 <code [innerHtml]="whitespaceToBreak(indicator.pattern)" class="inlineBlock"></code>
@@ -40,7 +40,10 @@
                 </mat-chip-list>
                 <add-label-reactive [stixType]="'indicator'" (labelAdded)="addLabel($event)" [currentLabels]="indicator.labels"></add-label-reactive>
             </div>
-
+            <div *ngIf="indicator.description">
+                <label>Description</label>
+                <p>{{ indicator.description }}</p>
+            </div>
             <div *ngIf="indicator.kill_chain_phases">
                 <label>Kill Chain Phases</label>
                 <p>
@@ -52,10 +55,6 @@
                         <span *ngIf="i < (indicator.kill_chain_phases.length - 1)">&nbsp;&bull;&nbsp;</span>
                     </span>
                 </p>
-            </div>
-            <div *ngIf="indicator.description">
-                <label>Description</label>
-                <p>{{ indicator.description }}</p>
             </div>
             <div *ngIf="indicator.external_references">
                 <label>External References</label><br>
@@ -72,6 +71,7 @@
             </div>    
 
             <div *ngIf="attackPatterns && attackPatterns.length > 0">
+                <hr>
                 <h3 class="lightH3">Attack Patterns</h3>       
                 <div *ngFor="let ap of attackPatterns">
                     <h4 class="fw400">
@@ -100,10 +100,11 @@
                         <label>Sophistication Level:&nbsp;</label>
                         <span>{{ ap.x_unfetter_sophistication_level }}</span>
                     </div>
-                </div>            =
+                </div>
             </div>
 
             <div *ngIf="sensors && sensors.length > 0">
+                <hr>
                 <h3 class="lightH3">Sensors</h3>     
                 <div *ngFor="let sensor of sensors">
                     <h4 class="fw400">
@@ -117,8 +118,13 @@
             </div>
         </div>
 
-        <button mat-button color="primary" class="mt-6" (click)="showMore = !showMore" *ngIf="displayShowMoreBtn">SHOW MORE</button>
-
+        <div class="mt-6">
+            <button mat-button color="primary" (click)="showMore = !showMore" *ngIf="displayShowMoreBtn">
+                <span>SHOW&nbsp;</span>
+                <span *ngIf="!showMore">MORE</span>
+                <span *ngIf="showMore">LESS</span>
+            </button>
+        </div>
 
         <div class="mt-20 overFlowHidden" @heightCollapse *ngIf="showCommentTextArea">
             <mat-form-field class="full-width">

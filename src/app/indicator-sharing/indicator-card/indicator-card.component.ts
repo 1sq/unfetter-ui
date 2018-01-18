@@ -7,11 +7,15 @@ import { FormatHelpers } from '../../global/static/format-helpers';
 import { AuthService } from '../../core/services/auth.service';
 import { heightCollapse } from '../../global/animations/height-collapse';
 import { environment } from '../../../environments/environment';
+import { heightTransition } from '../../global/animations/height-transition';
 
 @Component({
     selector: 'indicator-card',
     templateUrl: 'indicator-card.component.html',
-    animations: [heightCollapse],
+    animations: [
+        heightCollapse,
+        heightTransition(270)
+    ],
     styleUrls: ['indicator-card.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -87,7 +91,6 @@ export class IndicatorCardComponent implements OnInit, AfterViewInit {
 
         requestAnimationFrame(() => {
             const height = this.mainContentEl.nativeElement.offsetHeight;
-            console.log('~~~~', height);
             if (height >= this.SHOW_MORE_BUTTON_THRESHOLD) {
                 this.displayShowMoreBtn = true;
             }
