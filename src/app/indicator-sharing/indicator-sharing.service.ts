@@ -30,6 +30,11 @@ export class IndicatorSharingService {
         return this.genericApi.get(url);
     }
 
+    public getIndicatorsPage(limit: number, skip: number, filter: object = {}): Observable<any> {
+        const url = `${this.baseUrl}?filter=${encodeURIComponent(JSON.stringify(filter))}&limit=${limit}&skip=${skip}&metaproperties=true`;
+        return this.genericApi.get(url);
+    }
+
     public getIndicator(id, filter: object = {}): Observable<any> {
         const url = `${this.baseUrl}/${id}?filter=${encodeURIComponent(JSON.stringify(filter))}&metaproperties=true`;
         return this.genericApi.get(url);
@@ -54,6 +59,10 @@ export class IndicatorSharingService {
         };
         return this.genericApi.get(`${this.attackPatternsUrl}?project=${JSON.stringify(projectObj)}`);
     }
+
+    public getCount(filterObj: object): Observable<number> {
+        return this.genericApi.get(`${this.multiplesUrl}/count?filter=${encodeURI(JSON.stringify(filterObj))}`).pluck('attributes').pluck('count');
+    };
 
     public addComment(comment, id) {
         const url = `${this.multiplesUrl}/${id}/comment`;

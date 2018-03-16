@@ -26,6 +26,7 @@ export const CLEAR_SEARCH_PARAMETERS = '[Indicator Sharing] CLEAR_SEARCH_PARAMET
 export const SHOW_MORE_INDICATORS = '[Indicator Sharing] SHOW_MORE_INDICATORS';
 export const UPDATE_SOCIAL = '[Indicator Sharing] UPDATE_SOCIAL';
 export const SET_SERVER_CALL_COMPLETE = '[Indicator Sharing] SET_SERVER_CALL_COMPLETE';
+export const SET_RESULT_COUNT = '[Indicator Sharing] SET_RESULT_COUNT';
 
 export class FetchData implements Action {
     public readonly type = FETCH_DATA;
@@ -149,6 +150,12 @@ export class SetServerCallComplete implements Action {
     constructor(public payload: boolean) { }
 }
 
+export class SetResultCount implements Action {
+    public readonly type = SET_RESULT_COUNT;
+
+    constructor(public payload: number) { }
+}
+
 export type IndicatorSharingActions =
     FetchData |
     CreateIndicatorToApRelationship |
@@ -171,4 +178,5 @@ export type IndicatorSharingActions =
     ShowMoreIndicators |
     StartSocialStream |
     UpdateSocial |
-    SetServerCallComplete;
+    SetServerCallComplete |
+    SetResultCount;

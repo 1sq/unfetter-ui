@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
+import { Store } from '@ngrx/store';
 
 import * as indicatorSharingActions from './indicator-sharing.actions';
+import * as fromIndicatorSharing from './indicator-sharing.reducers';
 import { WebsocketService } from '../../core/services/web-socket.service';
 import { WSMessageTypes } from '../../global/enums/ws-message-types.enum';
 import { GenericApi } from '../../core/services/genericapi.service';
 import { IndicatorSharingService } from '../indicator-sharing.service';
 import { Constance } from '../../utils/constance';
+import { SearchParameters } from '../models/search-parameters';
+import { RxjsHelpers } from '../../global/static/rxjs-helpers';
 
 @Injectable()
 export class IndicatorSharingEffects {
@@ -116,8 +120,43 @@ export class IndicatorSharingEffects {
         .map((res: any) => this.makeIndicatorToAttackPatternMap(res.attributes))
         .map((indicatorToApMap) => new indicatorSharingActions.SetIndicatorToApMap(indicatorToApMap));
 
+    @Effect()
+    public startSearch = this.actions$
+        .ofType(indicatorSharingActions.FILTER_INDICATORS)
+        .withLatestFrom(this.store.pluck('indicatorSharing').pluck('searchParameters'))
+        .map(([_, searchParameters]: [any, SearchParameters]) => searchParameters)
+        .switchMap((searchParameters: SearchParameters) => {
+            const filterObj = { };
+            if (searchParameters.indicatorName !== '') {
+                filterObj['stix.name'] = { $regex: `.*${searchParameters.indicatorName}.*`, $options: 'i' };
+            }
+            if (searchParameters.labels.length) {
+                filterObj['stix.labels'] = { $in: searchParameters.labels };
+            }
+            if (searchParameters.organizations.length) {
+                filterObj['stix.created_by_ref'] = { $in: searchParameters.organizations };
+            }
+            if (searchParameters.killChainPhases.length) {
+                filterObj['stix.kill_chain_phases.phase_name'] = { $in: searchParameters.killChainPhases };
+            }
+            // TODO figure out a way to handle attack patterns and sensors
+            return Observable.forkJoin(
+                this.indicatorSharingService.getCount({ ...filterObj, 'stix.type': 'indicator' }),
+                this.indicatorSharingService
+                    .getIndicatorsPage(Constance.INDICATOR_SHARING_DEFAULT_DISPLAYED_LENGTH, 0, filterObj)
+                    .map(RxjsHelpers.mapArrayAttributes)
+            );
+        })
+        .do((results) => console.log('~~SEARCH RESULTS~~', results))
+        .mergeMap(([count, indicators]: [number, any]) => { 
+            return [
+                new indicatorSharingActions.SetResultCount(count)
+            ];
+        });
+
     constructor(
         private actions$: Actions,
+        private store: Store<fromIndicatorSharing.IndicatorSharingFeatureState>,
         private websocketService: WebsocketService,
         private genericApi: GenericApi,
         private indicatorSharingService: IndicatorSharingService

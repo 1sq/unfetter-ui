@@ -2,6 +2,7 @@ import * as indicatorSharingActions from './indicator-sharing.actions';
 import * as fromApp from '../../root-store/app.reducers'
 import { SearchParameters } from '../models/search-parameters';
 import { SortTypes } from '../models/sort-types.enum';
+import { Constance } from '../../utils/constance';
 
 export interface IndicatorSharingFeatureState extends fromApp.AppState {
     indicatorSharing: IndicatorSharingState
@@ -18,7 +19,8 @@ export interface IndicatorSharingState {
     indicatorToSensorMap: {},
     indicatorToApMap: {},
     serverCallComplete: boolean,
-    sortBy: string
+    sortBy: string,
+    resultCount: number
 }
 
 export const initialSearchParameters: SearchParameters = {
@@ -41,10 +43,11 @@ const initialState: IndicatorSharingState = {
     indicatorToSensorMap: {},
     indicatorToApMap: {},
     serverCallComplete: false,
-    sortBy: SortTypes.NEWEST
+    sortBy: SortTypes.NEWEST,
+    resultCount: 0
 };
 
-const DEFAULT_DISPLAYED_LENGTH: number = 10;
+const DEFAULT_DISPLAYED_LENGTH: number = Constance.INDICATOR_SHARING_DEFAULT_DISPLAYED_LENGTH;
 
 export function indicatorSharingReducer(state = initialState, action: indicatorSharingActions.IndicatorSharingActions): IndicatorSharingState {
 
@@ -216,6 +219,11 @@ export function indicatorSharingReducer(state = initialState, action: indicatorS
             return {
                 ...state,
                 serverCallComplete: action.payload
+            };
+        case indicatorSharingActions.SET_RESULT_COUNT:
+            return {
+                ...state,
+                resultCount: action.payload
             };
         default:
             return state;

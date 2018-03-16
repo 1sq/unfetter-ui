@@ -109,6 +109,8 @@ export const Constance = {
   LOGO_IMG_ASSESSMENTS: 'assets/icon/dashboard-logos/icon-Assessments.png',
   LOGO_IMG_THREAT_DASHBOARD: 'assets/icon/dashboard-logos/icon-Threat_Dashboard.png',
 
+  INDICATOR_SHARING_DEFAULT_DISPLAYED_LENGTH: 10,
+
   COLORS: {
     green: '#4CAF50',
     darkGreen: '#2E7D32',
