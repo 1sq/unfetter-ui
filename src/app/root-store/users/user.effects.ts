@@ -18,7 +18,7 @@ export class UserEffects {
     // Initial token refresh delay until configuration is loaded
     private refreshTokenDelayMS: number = 10000;
     // The buffer between a token expiring and refresh attempts being made
-    private refreshBufferPercent: number = 0.3;
+    private refreshBufferPercent: number = 0.99;
     
     @Effect()
     public fetchUser = this.actions$
@@ -67,10 +67,10 @@ export class UserEffects {
                 this.refreshTokenDelayMS = this.refreshTokenDelayMS - (this.refreshTokenDelayMS * this.refreshBufferPercent);
                 this.refreshTokenDelayMS = Math.floor(this.refreshTokenDelayMS);
             }
-            return Observable.of([token, store])
+            return Observable.of(null)
                 .delay(this.refreshTokenDelayMS);
         })
-        .map(([token, store]: [string, AppState]) => new userActions.RefreshToken());
+        .map((_: any) => new userActions.RefreshToken());
 
     @Effect()
     public refreshToken = this.actions$

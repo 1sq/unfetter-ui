@@ -15,7 +15,7 @@ export interface IndicatorSharingState {
     sensors: any[],
     attackPatterns: any[],
     identities: any[],
-    searchParameters: {},
+    searchParameters: SearchParameters,
     indicatorToSensorMap: {},
     indicatorToApMap: {},
     serverCallComplete: boolean,
@@ -59,6 +59,11 @@ export function indicatorSharingReducer(state = initialState, action: indicatorS
                 filteredIndicators: action.payload,
                 displayedIndicators: initDisplauyedIndicators(action.payload)
             }, state.sortBy);
+        case indicatorSharingActions.SET_DISPLAYED_INDICATORS:
+            return {
+                ...state,
+                displayedIndicators: action.payload
+            };
         case indicatorSharingActions.FETCH_DATA:
             return {
                 ...state,

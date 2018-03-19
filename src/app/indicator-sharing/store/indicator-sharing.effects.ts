@@ -12,6 +12,7 @@ import { IndicatorSharingService } from '../indicator-sharing.service';
 import { Constance } from '../../utils/constance';
 import { SearchParameters } from '../models/search-parameters';
 import { RxjsHelpers } from '../../global/static/rxjs-helpers';
+import { SortTypes } from '../models/sort-types.enum';
 
 @Injectable()
 export class IndicatorSharingEffects {
@@ -123,10 +124,11 @@ export class IndicatorSharingEffects {
     @Effect()
     public startSearch = this.actions$
         .ofType(indicatorSharingActions.FILTER_INDICATORS)
-        .withLatestFrom(this.store.pluck('indicatorSharing').pluck('searchParameters'))
-        .map(([_, searchParameters]: [any, SearchParameters]) => searchParameters)
-        .switchMap((searchParameters: SearchParameters) => {
+        .withLatestFrom(this.store.pluck('indicatorSharing'))
+        .map(([_, indicatorSharingState]: [any, fromIndicatorSharing.IndicatorSharingState]) => indicatorSharingState)
+        .switchMap((indicatorSharingState: fromIndicatorSharing.IndicatorSharingState) => {
             const filterObj = { };
+            const { searchParameters, sortBy } = indicatorSharingState;
             if (searchParameters.indicatorName !== '') {
                 filterObj['stix.name'] = { $regex: `.*${searchParameters.indicatorName}.*`, $options: 'i' };
             }
@@ -139,18 +141,41 @@ export class IndicatorSharingEffects {
             if (searchParameters.killChainPhases.length) {
                 filterObj['stix.kill_chain_phases.phase_name'] = { $in: searchParameters.killChainPhases };
             }
+
+            let sortObj = {};
+            switch (sortBy) {
+                case SortTypes.NEWEST:
+                    sortObj = { 'stix.created': -1 };
+                    break;
+                case SortTypes.OLDEST:
+                    sortObj = { 'stix.created': 1 };
+                    break;
+                case SortTypes.COMMENTS:
+                // TODO figure out how to sort by comments and likes without aggregation pipeline
+                    break;
+                case SortTypes.LIKES:
+                    break;
+            }
+
             // TODO figure out a way to handle attack patterns and sensors
             return Observable.forkJoin(
                 this.indicatorSharingService.getCount({ ...filterObj, 'stix.type': 'indicator' }),
                 this.indicatorSharingService
                     .getIndicatorsPage(Constance.INDICATOR_SHARING_DEFAULT_DISPLAYED_LENGTH, 0, filterObj)
-                    .map(RxjsHelpers.mapArrayAttributes)
+                    .map(RxjsHelpers.mapArrayAttributes),
+                Observable.of(indicatorSharingState)
             );
         })
+        .map(([count, indicators, indicatorSharingState]: [number, any[], fromIndicatorSharing.IndicatorSharingState]) => {
+            // TODO filter by attack patterns and sensors
+            // TODO sort by comments or likes
+            return [count, indicators];
+        })
         .do((results) => console.log('~~SEARCH RESULTS~~', results))
-        .mergeMap(([count, indicators]: [number, any]) => { 
+        .mergeMap(([count, indicators]: [number, any[]]) => { 
             return [
-                new indicatorSharingActions.SetResultCount(count)
+                new indicatorSharingActions.SetResultCount(count),
+                new indicatorSharingActions.SetDisplayedIndicators(indicators)
             ];
         });
 

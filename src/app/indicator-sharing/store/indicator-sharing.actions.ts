@@ -15,6 +15,7 @@ export const SORT_INDICATORS = '[Indicator Sharing] SORT_INDICATORS';
 export const ADD_INDICATOR = '[Indicator Sharing] ADD_INDICATOR';
 export const UPDATE_INDICATOR = '[Indicator Sharing] UPDATE_INDICATOR';
 export const DELETE_INDICATOR = '[Indicator Sharing] DELETE_INDICATOR';
+export const SET_DISPLAYED_INDICATORS = '[Indicator Sharing] SET_DISPLAYED_INDICATORS';
 
 export const SET_SENSORS = '[Indicator Sharing] SET_SENSORS';
 export const SET_IDENTITIES = '[Indicator Sharing] SET_IDENTITIES';
@@ -56,6 +57,12 @@ export class StartUpdateIndicator implements Action {
 
 export class SetIndicators implements Action {
     public readonly type = SET_INDICATORS;
+
+    constructor(public payload: any[]) { }
+}
+
+export class SetDisplayedIndicators implements Action {
+    public readonly type = SET_DISPLAYED_INDICATORS;
 
     constructor(public payload: any[]) { }
 }
@@ -163,6 +170,7 @@ export type IndicatorSharingActions =
     StartDeleteIndicator |
     StartUpdateIndicator |
     SetIndicators |
+    SetDisplayedIndicators |
     SetAttackPatterns |
     FilterIndicators |
     SortIndicators |
