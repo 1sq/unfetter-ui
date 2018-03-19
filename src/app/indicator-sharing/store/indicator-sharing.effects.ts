@@ -141,6 +141,20 @@ export class IndicatorSharingEffects {
             if (searchParameters.killChainPhases.length) {
                 filterObj['stix.kill_chain_phases.phase_name'] = { $in: searchParameters.killChainPhases };
             }
+            if (searchParameters.attackPatterns.length) {
+                const ids = [];
+                for (let indId in indicatorSharingState.indicatorToApMap) {
+                    for (let apId of searchParameters.attackPatterns) {
+                        if (indicatorSharingState.indicatorToApMap[indId].map((ap) => ap.id).includes(apId)) {
+                            ids.push(indId);
+                        }
+                    }
+                }
+                filterObj['_id'] = { $in: ids };
+            }
+            // TODO check for AP ids oin sensors
+
+            console.log('~~~~FILTERS~~~~', filterObj);
 
             let sortObj = {};
             switch (sortBy) {
@@ -175,7 +189,7 @@ export class IndicatorSharingEffects {
         .mergeMap(([count, indicators]: [number, any[]]) => { 
             return [
                 new indicatorSharingActions.SetResultCount(count),
-                new indicatorSharingActions.SetDisplayedIndicators(indicators)
+                // new indicatorSharingActions.SetDisplayedIndicators(indicators)
             ];
         });
 
