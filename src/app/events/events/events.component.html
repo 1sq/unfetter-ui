@@ -1,6 +1,6 @@
 <div id="event" class="fadeIn" *ngIf="service.finishedLoading else loadingBlock">
   <mat-sidenav-container *ngIf="service.recentSightings; else notFound">
-    <mat-sidenav #filters mode="side" opened class="side-panel mat-elevation-z16">
+   <!-- <mat-sidenav #filters mode="side" opened class="side-panel mat-elevation-z16">
       <div id="filterTitle" class="flexItemsCenter">
         <div class="side-panel-header">
           <div class="height-100-percent">
@@ -18,7 +18,7 @@
         </div>
       </div>
       <filters></filters>
-    </mat-sidenav>
+    </mat-sidenav> -->
     <mat-sidenav-content>
       <div class="main-panel">
         <div id="main-header">
@@ -30,7 +30,7 @@
               </div>
               <div></div>
             </div>
-            <div class="flex flexRow">
+            <!-- <div class="flex flexRow">
               <div class="flex flexColumn">
                 <button mat-button (click)="filters.open()" id="showFiltersButton" *ngIf="!filters.opened" @fadeInOut>
                   <h5 class="inlineBlock">FILTERS&nbsp;&nbsp;</h5>
@@ -38,13 +38,13 @@
                 </button>
                 <div class="flex 1"></div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <events-content></events-content>
       </div>
     </mat-sidenav-content>
-    <mat-sidenav opened mode="side" position="end" class="side-panel mat-elevation-z16">
+    <!-- <mat-sidenav opened mode="side" position="end" class="side-panel mat-elevation-z16">
       <div id="recentTitle" class="flexItemsCenter">
         <div class="side-panel-header">
           <div class="height-100-percent">
@@ -59,7 +59,7 @@
         </div>
       </div>
       <related></related>
-    </mat-sidenav>
+    </mat-sidenav> -->
   </mat-sidenav-container>
 </div>
 
